@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submitted Application Details | ON THE WAY LOGISTICS</title>
+<style>
+:root{--navy:#10284f;--orange:#f58209;--ink:#172b4d;--muted:#64748b;--line:#e1e7ef}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f9;color:var(--ink);line-height:1.6}
+header{background:var(--navy);color:#fff;padding:22px 5%;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header strong{font-size:1.2rem;letter-spacing:.3px}header a{color:#fff;text-decoration:none;border:1px solid #ffffff80;padding:8px 13px;border-radius:6px}
+main{width:min(850px,92%);margin:42px auto}.card{background:#fff;border-radius:16px;padding:clamp(22px,5vw,42px);box-shadow:0 12px 36px #10284f12;border:1px solid var(--line)}
+.success{display:flex;gap:14px;align-items:center;margin-bottom:26px}.check{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:50%;background:#e7f8ed;color:#16803c;font-size:26px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:0 0 5px}p{margin:4px 0;color:var(--muted)}.id{margin:22px 0;padding:14px 16px;border-radius:9px;background:#fff5e9;border:1px solid #ffd8aa}.id b{color:#9a4b00;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;margin-top:18px}.field{padding:13px 0;border-bottom:1px solid var(--line);min-width:0}.field small{display:block;color:var(--muted);font-size:.8rem;margin-bottom:4px}.field strong{display:block;overflow-wrap:anywhere;font-weight:600}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-block;padding:11px 17px;border-radius:7px;text-decoration:none;font-weight:700;background:var(--orange);color:#fff;border:0;cursor:pointer}.btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--line)}.error{padding:20px;background:#fff;border:1px solid #f2c7c7;border-radius:12px;color:#9b1c1c}
+@media(max-width:560px){.grid{grid-template-columns:1fr}main{margin:24px auto}.success{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><strong>ON THE WAY LOGISTICS</strong><a href="index.html">← Back to website</a></header>
+<main><section class="card" id="applicationContent" aria-live="polite"><p>Loading your saved application…</p></section></main>
+<script>
+(() => {
+ const root=document.getElementById('applicationContent');
+ const params=new URLSearchParams(location.search);
+ const id=params.get('id') || localStorage.getItem('otw_last_application_id');
+ if(!id){root.innerHTML='<div class="error"><h1>Application not found</h1><p>No application ID was provided. Please submit an application first.</p><p><a href="index.html#partner-portal">Go to application form</a></p></div>';return;}
+ let found=null;
+ for(const key of ['otw_franchise_applications','otw_vendor_applications']){
+   try{const rows=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(rows)){found=rows.find(row=>row.applicationId===id)||found;}}catch(e){}
+ }
+ if(!found){root.innerHTML='<div class="error"><h1>Application details unavailable</h1><p>This application could not be found in this browser. Please return to the application form and submit again on the same device and browser.</p><p><a href="index.html#partner-portal">Go to application form</a></p></div>';return;}
+ const labels={fullName:'Full Name',dob:'Date of Birth',gmail:'Email',contactNumber:'Contact Number',whatsappNumber:'WhatsApp Number',address:'Full Address',fullAddress:'Full Address',cityOrVillage:'Village / City Name',location:'Locality / Area Name',district:'District',state:'State',pincode:'PIN Code',businessName:'Business Name',businessType:'Business Type',companyName:'Company Name',gstNumber:'GST Number',panNumber:'PAN Number',experience:'Experience',vehicleDetails:'Vehicle Details',serviceType:'Service Type',submittedAt:'Submitted At'};
+ const fields=Object.entries(found).filter(([k,v])=>!['applicationId','portalType'].includes(k)&&v!==''&&v!=null).map(([k,v])=>'<div class="field"><small>'+escapeHtml(labels[k]||pretty(k))+'</small><strong>'+escapeHtml(String(k==='submittedAt'?new Date(v).toLocaleString():v))+'</strong></div>').join('');
+ root.innerHTML='<div class="success"><div class="check">✓</div><div><h1>Application submitted successfully</h1><p>Your '+escapeHtml(found.portalType||'Partner')+' application has been saved.</p></div></div><div class="id">Application ID: <b>'+escapeHtml(found.applicationId)+'</b></div><h2>Submitted application details</h2><div class="grid">'+fields+'</div><div class="actions"><a class="btn" href="index.html">Back to Home</a><button class="btn secondary" onclick="window.print()">Print details</button></div>';
+ function pretty(s){return s.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());}
+ function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+})();
+</script>
+</body>
+</html>

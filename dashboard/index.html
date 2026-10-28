@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>On The Way Logistics</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="logo.jpg" type="image/jpeg">
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<div id="authView" class="auth-wrap">
+  <div class="auth-card auth-card-wide">
+    <div class="brand"><img class="site-logo auth-logo" src="logo.jpg" alt="On The Way Logistics logo"><div><h1>On The Way Logistics</h1><p>Secure Logistics Management Portal</p></div></div>
+
+    <div id="authLoginRegister">
+      <div class="auth-tabs"><button class="active" type="button">Admin Secure Login</button></div>
+      <form id="loginForm" class="auth-form">
+        <label>Admin Email<input id="loginIdentity" type="email" required placeholder="Enter authorized admin email" autocomplete="username"></label>
+        <label>Password<div class="password-wrap"><input id="loginPassword" type="password" required placeholder="Enter password" autocomplete="current-password"><button type="button" class="password-toggle" data-target="loginPassword">Show</button></div></label>
+        <div class="auth-row"><label class="check"><input id="remember" type="checkbox"> Remember me</label></div>
+        <button class="primary full">Login to Admin Panel</button>
+        <p class="hint">Restricted access: only 4 authorized administrators can login.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+<header class="topbar"><button id="menuBtn" class="icon-btn">☰</button><div class="top-brand"><img class="site-logo top-logo" src="logo.jpg" alt="On The Way Logistics logo"><strong>On The Way Logistics</strong></div><div class="top-actions"><span id="userLabel"></span><button id="logoutBtn" class="ghost">Logout</button></div></header>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand"><img src="logo.jpg" class="sidebar-logo" alt="On The Way Logistics logo"></div>
+  <nav>
+    <button class="nav active" data-page="dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/></svg></span><span>Dashboard</span></button>
+    <button class="nav" data-page="riders"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9a7 7 0 0 1 14 0H5Zm15-9.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-2.7 2.1a6 6 0 0 1 2.7 5.4h3a5 5 0 0 0-5.7-5.4Z"/></svg></span><span>Riders</span></button>
+    <button class="nav" data-page="hub"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v17h-4v-5h-2v5h-4v-5H8v5H4Zm4-14h2V5H8v2Zm4 0h2V5h-2v2Zm4 0h2V5h-2v2ZM8 11h2V9H8v2Zm4 0h2V9h-2v2Zm4 0h2V9h-2v2Z"/></svg></span><span>Hub</span></button>
+    <button class="nav" data-page="client"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 21a6 6 0 0 1 12 0H2Zm12 0a5 5 0 0 1 5-5 5 5 0 0 1 5 5h-10Z"/></svg></span><span>Client</span></button>
+    <button class="nav" data-page="work"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm2 4v2h8V6H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"/></svg></span><span>Daily Work</span></button>
+    <button class="nav" data-page="documents"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V7h3.5L13 3.5ZM8 10h8V8H8v2Zm0 4h8v-2H8v2Zm0 4h6v-2H8v2Z"/></svg></span><span>Documents</span></button>
+    <button class="nav" data-page="payments"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3V5Zm2 3v2h14V8H5Zm2 5h4v2H7v-2Zm7 0h3v2h-3v-2Z"/></svg></span><span>Payments</span></button>
+    <button class="nav" data-page="whatsapp"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3Zm0 16a7 7 0 0 1-3.6-1l-.3-.2-2.8.7.7-2.7-.2-.3A7 7 0 1 1 12 19Zm3.8-5.2c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.7.9c-.1.2-.3.2-.5.1-1.6-.8-2.6-1.5-3.6-3.2-.3-.4.3-.4.8-1.3.1-.2.1-.3 0-.5l-.7-1.6c-.2-.4-.4-.3-.6-.3h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.6c.1.2 1.8 2.8 4.4 3.9 2.2 1 2.2.7 2.6.7.4 0 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.5-.3Z"/></svg></span><span>WhatsApp</span></button>
+    <button class="nav" data-page="partners"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 14a3.5 3.5 0 1 1 0-7h3v2h-3a1.5 1.5 0 1 0 0 3H10v2H7.5Zm9-7a3.5 3.5 0 1 1 0 7h-3v-2h3a1.5 1.5 0 1 0 0-3H14V7h2.5ZM8 11h8v2H8v-2Z"/></svg></span><span>Partner Applications</span></button>
+    <button class="nav" data-page="reports"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16v2H2V3h2v16Zm3-3h2V9H7v7Zm4 0h2V5h-2v11Zm4 0h2v-9h-2v9Z"/></svg></span><span>Reports</span></button>
+    <button class="nav" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.5-2.4 1a7.8 7.8 0 0 0-1.7-1L15 3h-4l-.3 3a7.8 7.8 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7.8 7.8 0 0 0 1.7 1l.3 3h4l.3-3a7.8 7.8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5ZM13 15.5A3.5 3.5 0 1 1 13 8a3.5 3.5 0 0 1 0 7.5Z"/></svg></span><span>Settings</span></button>
+  </nav>
+  <div class="side-footer"><img src="logo.jpg" class="sidebar-footer-logo" alt="On The Way Logistics logo">Admin Portal<br><small>Version 1.0</small></div>
+</aside>
+<main class="content" id="content"></main>
+</div></div>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><button class="modal-close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+</body></html>
