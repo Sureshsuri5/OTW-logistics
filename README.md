@@ -1,4 +1,4 @@
-# ON THE WAY LOGISTICS - Website + Admin Panel (linked)
+# ON THE WAY LOGISTICS - Website + Admin Panel + Vendor Portal
 
 ```
 OTW_Website_and_Dashboard/
@@ -7,6 +7,7 @@ OTW_Website_and_Dashboard/
   backend/              Node/Express + SQLite server (stores applications, payments/AutoPay)
   website/              Public site with Franchise & Vendor application forms
   dashboard/            Admin panel (Client > Franchise / Vendor, Partner Applications)
+  vendor-portal/        Vendor Management Portal (vendors sign in: profile, locations, riders, orders, reports, support)
 ```
 
 ## Start it (easy way)
@@ -15,6 +16,7 @@ OTW_Website_and_Dashboard/
 3. Keep that window open. It is the server; if it is closed, applications cannot be received.
    - Website:      http://localhost:8080/
    - Admin panel:  http://localhost:8080/dashboard/  (also linked in the website footer: "Staff / Admin Login")
+   - Vendor portal: http://localhost:8080/vendor/  (website footer: "Vendor Login"; admin sidebar: "Vendor Portal")
 
 Manual way: `cd backend`, `cp .env.example .env`, `npm install`, `npm start`.
 
@@ -40,6 +42,17 @@ Manual way: `cd backend`, `cp .env.example .env`, `npm install`, `npm start`.
 
 If the server is not running, the website shows an error and keeps the applicant's typing; nothing is silently lost.
 
+## Vendor Management Portal
+- Open http://localhost:8080/vendor/ . Demo login: **VN-000001** / **vendor123**.
+- Pages: Dashboard, Vendor Profile, My Locations, Orders, Riders, Reports (weekly + 15-day), Notifications, Settings.
+- Clicking the round avatar opens the camera to take a profile selfie (works on localhost or HTTPS).
+- **Helpline / Support** (Settings page) emails the customer's details and photo to `SUPPORT_EMAIL`.
+  To turn sending on, edit `backend/.env`: turn on 2-Step Verification for the Gmail account, create an
+  **App Password** (Google Account > Security > App passwords) and put it in `GMAIL_APP_PASSWORD`, then restart the server.
+  Until then the form shows "Support email is not configured yet". Limits: photo up to 8 MB, 5 requests per 10 minutes per visitor.
+- Still a demo: there is one shared demo vendor login, and profile, locations, riders, orders and selfie are saved only
+  in the browser being used (not on the server), so another computer will not see them.
+
 ## Putting it online
 The website and admin panel must be served by this backend (or point to it). If you host the website
 somewhere else, add this line before `partner-forms.js` in `index.html` and `services.html`:
@@ -53,6 +66,7 @@ before `app.js`, and set `ALLOWED_ORIGIN` in `backend/.env` to the website addre
 - Back up `backend/payments.sqlite` regularly; it holds all applications.
 
 ## Changes in this version
+- Added the Vendor Management Portal at /vendor/, run by the same server and start script. Its support email endpoint now lives in `backend/server.js` (upgraded to patched multer 2.5 / nodemailer 10.2, with an 8 MB photo limit and spam limit).
 - Accept / Reject buttons for Franchise and Vendor applications, with optional note, undo, decision history and status filter.
 - Services page forms now send applications to the server (before, they only saved in the visitor's own browser and never reached the admin panel).
 - Home and Services pages share one submit script, so they cannot drift apart again. The Services page also gained the missing Vendor "Full Address" field and "Staff / Admin Login" link.

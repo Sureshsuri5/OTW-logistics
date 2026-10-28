@@ -4,6 +4,8 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
+import multer from 'multer';
+import nodemailer from 'nodemailer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -134,6 +136,49 @@ app.post('/api/autopay/:id/pause',adminGuard,async(req,res)=>{try{const out=awai
 app.post('/api/autopay/:id/resume',adminGuard,async(req,res)=>{try{const out=await razor(`/subscriptions/${encodeURIComponent(req.params.id)}/resume`,{method:'POST',body:JSON.stringify({resume_at:'now'})});db.prepare('UPDATE subscriptions SET status=? WHERE gateway_subscription_id=?').run('Active',req.params.id);audit(req.adminEmail,'autopay_resumed',{id:req.params.id});res.json(out)}catch(err){res.status(502).json({error:err.message})}});
 app.post('/api/autopay/:id/cancel',adminGuard,async(req,res)=>{try{const out=await razor(`/subscriptions/${encodeURIComponent(req.params.id)}/cancel`,{method:'POST',body:JSON.stringify({cancel_at_cycle_end:0})});db.prepare('UPDATE subscriptions SET status=? WHERE gateway_subscription_id=?').run('Cancelled',req.params.id);audit(req.adminEmail,'autopay_cancelled',{id:req.params.id});res.json(out)}catch(err){res.status(502).json({error:err.message})}});
 
+// ===================== Vendor Portal: Helpline / Support =====================
+// The vendor portal's support form (Settings page) posts here; details + photo are emailed
+// to SUPPORT_EMAIL using the Gmail account in .env (GMAIL_USER + GMAIL_APP_PASSWORD).
+const SUPPORT_EMAIL=process.env.SUPPORT_EMAIL||'onthewaynpr@gmail.com';
+const supportUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:10,fieldSize:20000}});
+const supportLimiter=rateLimit({windowMs:10*60_000,max:5,standardHeaders:true,legacyHeaders:false,message:{error:'Too many support requests. Please wait a few minutes and try again.'}});
+let mailTransporter=null;
+function getMailTransporter(){
+  // Optional: another mail provider via SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_USER / SMTP_PASS.
+  if(process.env.SMTP_HOST){
+    const user=process.env.SMTP_USER||process.env.GMAIL_USER||SUPPORT_EMAIL;
+    if(!mailTransporter)mailTransporter=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||587),secure:process.env.SMTP_SECURE==='true',auth:process.env.SMTP_PASS?{user,pass:process.env.SMTP_PASS}:undefined});
+    return {transporter:mailTransporter,user};
+  }
+  const user=process.env.GMAIL_USER||SUPPORT_EMAIL,pass=String(process.env.GMAIL_APP_PASSWORD||'').replace(/\s+/g,'');
+  if(!pass||pass.startsWith('replace_'))return null;
+  if(!mailTransporter)mailTransporter=nodemailer.createTransport({service:'gmail',auth:{user,pass}});
+  return {transporter:mailTransporter,user};
+}
+const oneLine=v=>String(v||'').replace(/[\r\n]+/g,' ').trim();
+app.post('/api/support',supportLimiter,(req,res)=>{
+  supportUpload.single('photo')(req,res,async err=>{
+    if(err)return res.status(400).json({error:err.code==='LIMIT_FILE_SIZE'?'The photo is too large. Please attach an image under 8 MB.':'Could not read the attached photo. Please try another image.'});
+    try{
+      const name=oneLine(req.body?.name).slice(0,120),email=oneLine(req.body?.email).slice(0,254),phone=oneLine(req.body?.phone).slice(0,30);
+      const description=String(req.body?.description||'').trim().slice(0,3000),photo=req.file;
+      if(!name||!email||!description||!photo)return res.status(400).json({error:'Please provide your name, email, problem description, and a photo.'});
+      if(!/^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[^\s@<>()",;:]+$/.test(email))return res.status(400).json({error:'Please provide a valid email address.'});
+      if(!photo.mimetype||!photo.mimetype.startsWith('image/'))return res.status(400).json({error:'The attachment must be an image.'});
+      const mail=getMailTransporter();
+      if(!mail){console.error('Support email is not configured: set GMAIL_APP_PASSWORD in backend/.env');return res.status(503).json({error:'Support email is not configured yet. Please contact the portal administrator.'})}
+      await mail.transporter.sendMail({
+        from:{name:'ON THE WAY LOGISTICS Support',address:mail.user},to:SUPPORT_EMAIL,replyTo:{name,address:email},
+        subject:`Portal support issue from ${name}`,
+        text:`New Helpline / Support request\n\nCustomer name: ${name}\nEmail address: ${email}\nContact number: ${phone||'Not provided'}\n\nProblem description:\n${description}\n\nThe customer photo is attached.`,
+        attachments:[{filename:path.basename(photo.originalname||'support-photo').slice(0,100),content:photo.buffer,contentType:photo.mimetype}]
+      });
+      res.json({ok:true,message:'Your issue has been submitted. Our support team will contact you soon.'});
+    }catch(e){console.error('Support submission failed:',e.message);res.status(502).json({error:'We could not send your issue to the support team. Please try again later.'})}
+  });
+});
+
+app.use('/vendor',express.static(path.join(__dirname,'..','vendor-portal')));
 app.use('/dashboard',express.static(path.join(__dirname,'..','dashboard')));
 app.use(express.static(path.join(__dirname,'..','website')));
-app.listen(PORT,()=>console.log(`On The Way Logistics backend running on http://localhost:${PORT}`));
+app.listen(PORT,()=>{console.log(`On The Way Logistics running on http://localhost:${PORT}`);console.log(`  Website:       http://localhost:${PORT}/`);console.log(`  Admin panel:   http://localhost:${PORT}/dashboard/`);console.log(`  Vendor portal: http://localhost:${PORT}/vendor/`)});

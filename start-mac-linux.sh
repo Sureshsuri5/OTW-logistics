@@ -9,14 +9,17 @@ fi
 
 [ -f .env ] || cp .env.example .env
 
-if [ ! -d node_modules ]; then
-  echo "Installing required packages (first time only)..."
-  npm install || { echo "Package install failed. Check your internet connection."; exit 1; }
+# Install packages the first time, and again whenever package.json changes.
+if ! cmp -s package.json node_modules/.installed-package.json 2>/dev/null; then
+  echo "Installing required packages, please wait..."
+  npm install --no-audit --no-fund || { echo "Package install failed. Check your internet connection."; exit 1; }
+  cp package.json node_modules/.installed-package.json
 fi
 
 echo
 echo "  Website:      http://localhost:8080/"
 echo "  Admin panel:  http://localhost:8080/dashboard/"
+echo "  Vendor portal: http://localhost:8080/vendor/"
 echo
 echo "  Keep this window open. Closing it stops the server."
 echo

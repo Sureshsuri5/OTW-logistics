@@ -7,6 +7,13 @@
 // To point at a deployed backend, set window.OTW_API_BASE before this script loads.
 const OTW_API_BASE = window.OTW_API_BASE || ((location.protocol === 'file:' || ['5500', '5501'].includes(location.port)) ? 'http://localhost:8080' : location.origin);
 
+// "Vendor Login" footer link: the vendor portal is served by the backend at /vendor/.
+if (location.protocol === 'file:') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('a[data-vendor-link]').forEach(a => { a.href = OTW_API_BASE + '/vendor/'; });
+  });
+}
+
 async function handlePortalSubmit(e, portalType) {
   e.preventDefault();
   const form = e.target;
