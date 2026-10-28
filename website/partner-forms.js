@@ -7,10 +7,11 @@
 // To point at a deployed backend, set window.OTW_API_BASE before this script loads.
 const OTW_API_BASE = window.OTW_API_BASE || ((location.protocol === 'file:' || ['5500', '5501'].includes(location.port)) ? 'http://localhost:8080' : location.origin);
 
-// "Vendor Login" footer link: the vendor portal is served by the backend at /vendor/.
+// "Vendor Login" / "Franchise Login" footer links: the portals are served by the backend at /vendor/ and /franchise/.
 if (location.protocol === 'file:') {
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[data-vendor-link]').forEach(a => { a.href = OTW_API_BASE + '/vendor/'; });
+    document.querySelectorAll('a[data-franchise-link]').forEach(a => { a.href = OTW_API_BASE + '/franchise/'; });
   });
 }
 

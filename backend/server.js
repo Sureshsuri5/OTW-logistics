@@ -162,6 +162,7 @@ app.post('/api/support',supportLimiter,(req,res)=>{
     try{
       const name=oneLine(req.body?.name).slice(0,120),email=oneLine(req.body?.email).slice(0,254),phone=oneLine(req.body?.phone).slice(0,30);
       const description=String(req.body?.description||'').trim().slice(0,3000),photo=req.file;
+      const portal=['Vendor Portal','Franchise Portal'].includes(req.body?.portal)?req.body.portal:'Portal',partnerId=oneLine(req.body?.partnerId).replace(/[^A-Za-z0-9-]/g,'').slice(0,30);
       if(!name||!email||!description||!photo)return res.status(400).json({error:'Please provide your name, email, problem description, and a photo.'});
       if(!/^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[^\s@<>()",;:]+$/.test(email))return res.status(400).json({error:'Please provide a valid email address.'});
       if(!photo.mimetype||!photo.mimetype.startsWith('image/'))return res.status(400).json({error:'The attachment must be an image.'});
@@ -169,8 +170,8 @@ app.post('/api/support',supportLimiter,(req,res)=>{
       if(!mail){console.error('Support email is not configured: set GMAIL_APP_PASSWORD in backend/.env');return res.status(503).json({error:'Support email is not configured yet. Please contact the portal administrator.'})}
       await mail.transporter.sendMail({
         from:{name:'ON THE WAY LOGISTICS Support',address:mail.user},to:SUPPORT_EMAIL,replyTo:{name,address:email},
-        subject:`Portal support issue from ${name}`,
-        text:`New Helpline / Support request\n\nCustomer name: ${name}\nEmail address: ${email}\nContact number: ${phone||'Not provided'}\n\nProblem description:\n${description}\n\nThe customer photo is attached.`,
+        subject:`${portal} support issue from ${name}${partnerId?' ('+partnerId+')':''}`,
+        text:`New Helpline / Support request\n\nSent from: ${portal}${partnerId?' - account '+partnerId:''}\nCustomer name: ${name}\nEmail address: ${email}\nContact number: ${phone||'Not provided'}\n\nProblem description:\n${description}\n\nThe customer photo is attached.`,
         attachments:[{filename:path.basename(photo.originalname||'support-photo').slice(0,100),content:photo.buffer,contentType:photo.mimetype}]
       });
       res.json({ok:true,message:'Your issue has been submitted. Our support team will contact you soon.'});
@@ -179,6 +180,7 @@ app.post('/api/support',supportLimiter,(req,res)=>{
 });
 
 app.use('/vendor',express.static(path.join(__dirname,'..','vendor-portal')));
+app.use('/franchise',express.static(path.join(__dirname,'..','franchise-portal')));
 app.use('/dashboard',express.static(path.join(__dirname,'..','dashboard')));
 app.use(express.static(path.join(__dirname,'..','website')));
-app.listen(PORT,()=>{console.log(`On The Way Logistics running on http://localhost:${PORT}`);console.log(`  Website:       http://localhost:${PORT}/`);console.log(`  Admin panel:   http://localhost:${PORT}/dashboard/`);console.log(`  Vendor portal: http://localhost:${PORT}/vendor/`)});
+app.listen(PORT,()=>{console.log(`On The Way Logistics running on http://localhost:${PORT}`);console.log(`  Website:       http://localhost:${PORT}/`);console.log(`  Admin panel:   http://localhost:${PORT}/dashboard/`);console.log(`  Vendor portal: http://localhost:${PORT}/vendor/`);console.log(`  Franchise portal: http://localhost:${PORT}/franchise/`)});

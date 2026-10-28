@@ -35,6 +35,7 @@ echo.
 echo  Website:      http://localhost:8080/
 echo  Admin panel:  http://localhost:8080/dashboard/
 echo  Vendor portal: http://localhost:8080/vendor/
+echo  Franchise portal: http://localhost:8080/franchise/
 echo.
 echo  Keep this window open. Closing it stops the server and new applications will not be received.
 echo.
